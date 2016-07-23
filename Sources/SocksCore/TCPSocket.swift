@@ -119,7 +119,7 @@ public class TCPInternetSocket: InternetSocket, TCPSocket, TCPReadableSocket, TC
             try connect()
         } catch {
             //only allow error "in progress"
-            guard let err = error as? Error where err.number == EINPROGRESS else {
+            guard let err = error as? Error, err.number == EINPROGRESS else {
                 throw error
             }
         }
