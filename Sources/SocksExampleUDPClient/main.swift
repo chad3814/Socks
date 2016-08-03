@@ -9,9 +9,9 @@ do {
     try client.send(bytes: "Hello Socks world!\n\r".toBytes())
     let (data, sender) = try client.receive()
     try client.close()
-    
+
     let str = try data.toString()
-    let senderStr = String(describing: sender)
+    let senderStr = String(sender)
     print("Received: \n\(str) from \(senderStr)")
 } catch {
     print("Error \(error)")

@@ -17,7 +17,7 @@
 #endif
 
 extension RawSocket {
-    
+
     /// Control whether the socket calls are blocking or nonblocking
     public var blocking: Bool {
         get {
@@ -35,16 +35,16 @@ extension RawSocket {
             _ = fcntl(descriptor, F_SETFL, newFlags)
         }
     }
-    
-    /// Returns the current error code of the socket (0 if no error) 
+
+    /// Returns the current error code of the socket (0 if no error)
     public var errorCode: Int32 {
         return try! Self.getOption(descriptor: descriptor,
                                    level: SOL_SOCKET,
                                    name: SO_ERROR)
     }
-    
+
     //When we have throwing property setters, remove the bangs below
-    
+
     /// Keepalive messages enabled (if implemented by protocol)
     public var keepAlive: Bool {
         nonmutating set {
@@ -59,7 +59,7 @@ extension RawSocket {
                                            name: SO_KEEPALIVE)
         }
     }
-    
+
     /// Binding allowed (under certain conditions) to an address or port already in use
     public var reuseAddress: Bool {
         nonmutating set {
@@ -74,7 +74,7 @@ extension RawSocket {
                                            name: SO_REUSEADDR)
         }
     }
-    
+
     /// Specify the receiving timeout until reporting an error
     /// Zero timeval means wait forever
     public var receivingTimeout: timeval {
@@ -90,7 +90,7 @@ extension RawSocket {
                                        name: SO_RCVTIMEO)
         }
     }
-    
+
     /// Specify the sending timeout until reporting an error
     /// Zero timeval means wait forever
     public var sendingTimeout: timeval {
@@ -109,7 +109,7 @@ extension RawSocket {
 }
 
 extension RawSocket {
-    
+
     static func disableSIGPIPE(descriptor: Descriptor) throws {
         // prevents SIGPIPE from killing process
         // only works on OS X
@@ -117,7 +117,7 @@ extension RawSocket {
         try setOption(descriptor: descriptor, level: SOL_SOCKET, name: SO_NOSIGPIPE, value: 1)
         #endif
     }
-    
+
     static func setBoolOption(descriptor: Int32, level: Int32, name: Int32, value: Bool) throws {
         let val = value ? 1 : 0
         try setOption(descriptor: descriptor, level: level, name: name, value: val)
@@ -130,10 +130,10 @@ extension RawSocket {
     static func setOption<T>(descriptor: Int32, level: Int32, name: Int32, value: T) throws {
         var val = value
         guard setsockopt(descriptor, level, name, &val, socklen_t(strideof(T.self))) != -1 else {
-            throw SocksError(.optionSetFailed(level: level, name: name, value: String(describing: value)))
+            throw SocksError(.optionSetFailed(level: level, name: name, value: String(value)))
         }
     }
-    
+
     static func getOption<T>(descriptor: Int32, level: Int32, name: Int32) throws -> T {
         var length = socklen_t(strideof(T.self))
         var val = UnsafeMutablePointer<T>.allocate(capacity: 1)
@@ -142,7 +142,7 @@ extension RawSocket {
             val.deallocate(capacity: 1)
         }
         guard getsockopt(descriptor, level, name, val, &length) != -1 else {
-            throw SocksError(.optionGetFailed(level: level, name: name, type: String(describing: T.self)))
+            throw SocksError(.optionGetFailed(level: level, name: name, type: String(T.self)))
         }
         return val.pointee
     }
@@ -152,4 +152,3 @@ extension timeval: Equatable { }
 public func ==(lhs: timeval, rhs: timeval) -> Bool {
     return lhs.tv_sec == rhs.tv_sec && lhs.tv_usec == rhs.tv_usec
 }
-
